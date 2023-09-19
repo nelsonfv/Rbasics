@@ -1,0 +1,69 @@
+#****************************************************
+# APLICACIÓN BÁSICA DE CLUSTERING POR K-MEANS EN R
+#****************************************************
+
+# Carga el conjunto de datos iris (precargado en cualquier versión de R superior a la 3.0)
+data(iris)
+
+# Selecciona las columnas que se utilizarán para el clustering (en este caso, todas excepto la columna 5 que contiene especies de flores)
+iris_data <- iris[, -5]
+
+# Realiza el clustering por k-means con k=4 (esto quiere decir, establecer cuatro categorías de segmentación dentro del clustering)
+set.seed(123)  # Este comando es estándar para garantizar reproducibilidad del algoritmo
+kmeans_result <- kmeans(iris_data, centers = 4)
+
+# Muestra los resultados del clustering
+print(kmeans_result)
+
+# DESPUÉS DE ESTE PRINT, VA A OBTENER UN RESULTADO COMO ESTE:
+
+# K-means clustering with 4 clusters of sizes 22, 62, 38, 28 (AQUÍ ESTÁN LOS TAMAÑOS OBTENIDOS PARA CADA CLUSTER EN TÉRMINOS DE NÚMERO DE OBSERVACIONES/INDIVIDUOS)
+
+# Cluster means: (MEDIA DE LOS CLUSTERS PARA CADA UNA DE LAS VARIABLES SELECCIONADAS. ESTOS SON LOS INSUMOS UTILIZADOS POR EL SISTEMA PARA ESTABLECER LOS CENTROIDES DE LOS CLUSTERS)
+ # Sepal.Length Sepal.Width Petal.Length Petal.Width
+#1     4.704545    3.122727     1.413636   0.2000000
+#2     5.901613    2.748387     4.393548   1.4338710
+#3     6.850000    3.073684     5.742105   2.0710526
+#4     5.242857    3.667857     1.500000   0.2821429
+
+#Clustering vector: (ESTE VECTOR SENCILLAMENTE ES EL LISTADO DEL CLUSTER ASIGNADO A CADA OBSERVACIÓN DE LA MUESTRA)
+ # [1] 4 1 1 1 4 4 1 4 1 1 4 1 1 1 4 4 4 4 4 4 4 4 1 4 1 1 4 4 4 1 1 4 4 4 1 1 4 4 1
+ #[40] 4 4 1 1 4 4 1 4 1 4 1 2 2 3 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 3
+ #[79] 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 3 2 3 3 3 3 2 3 3 3 3 3 3 2 2 3 3
+#[118] 3 3 2 3 2 3 2 3 3 2 2 3 3 3 3 3 2 3 3 3 3 2 3 3 3 2 3 3 3 2 3 3 2
+
+#Within cluster sum of squares by cluster: (SUMA CUADRADA DE LAS OBSERVACIONES INTRA-CLUSTER, ES DECIR, ENTRE OBSERVACIONES DEL MISMO CLUSTER)
+#[1]  3.114091 39.820968 23.879474  4.630714
+ #(between_SS / total_SS =  89.5 %) --> ESTE ES EL COCIENTE DE LA SUMA DE CUADRADOS INTER-CLUSTERS Y EL TOTAL DE SUMA DE CUADRADOS DE LA BASE DE DATOS
+
+#Available components: (AQUÍ ENCUENTRA LO QUE CALCULA R CON BASE EN LA INSTRUCCIÓN DE kmeans{}). 
+
+#[1] "cluster"      "centers"      "totss"        "withinss"     "tot.withinss" (NÚMERO DE CLUSTER, CENTROIDE DE CLUSTER, SUMA TOTAL DE CUADRADOS, SUMA DE CUADRADOS INTRA-CLUSTER, SUMA DE CUADRADOS INTRA-CLUSTER SOBRE TOTAL)
+#[6] "betweenss"    "size"         "iter"         "ifault"    (SUMA DE CUADRADOS INTER-CLUSTER, TAMAÑO, ITERACIONES, INDICADOR DE ERROR DEL ALGORITMO)
+
+# Para visualizar los grupos asignados a cada observación
+clusters <- kmeans_result$cluster
+print(clusters)
+
+#-------------------------------------------------------------------------------------------------------
+
+# Gráficamente, esto tendrá más sentido para el data scientist. Entonces, realizamos lo siguiente:
+
+# Instala y carga la librería ggplot2 si aún no está instalada
+if (!require(ggplot2)) {
+  install.packages("ggplot2")
+  library(ggplot2)
+}
+
+# Agrega la información de los clusters al conjunto de datos original
+iris_with_clusters <- cbind(iris, Cluster = clusters)
+
+# Gráfico de dispersión con colores por cluster
+ggplot(iris_with_clusters, aes(x = Sepal.Length, y = Sepal.Width, color = factor(Cluster))) +
+  geom_point(size = 3) +
+  labs(title = "Clustering por k-means (k=4) de Iris Dataset", 
+       x = "Longitud del Sépalo", y = "Ancho del Sépalo") +
+  theme_minimal()
+print(clusters)
+
+# Se produce un gráfico de dispersión básico, que cuenta con múltiples opciones. 
